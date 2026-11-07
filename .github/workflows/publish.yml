@@ -4,9 +4,10 @@ name: publish
 # 触发方式：Actions 页面手动 Run workflow，或者打 v* tag 自动发。
 on:
   workflow_dispatch:
-  push:
-    tags:
-      - 'v*'
+  # TODO: npm 首次发布授权完成后恢复 tag 自动触发
+  # push:
+  #   tags:
+  #     - 'v*'
 
 permissions:
   contents: read
