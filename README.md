@@ -11,9 +11,19 @@
 > Dario off your tail, and watch the chase meter. Clawd uses user-provided running / sliding GIF
 > animations (12 frames each), and Dario a user-provided running GIF — both embedded as sprite
 > sheets. 400×225 canvas (roughly 1000×563 CSS in the panel, with a fullscreen button), integer
-> pixel scaling. Works standalone, or folds into `dsh-plugin-arcade`.
+> pixel scaling. Opens on a proper start screen (record, sector preview, controls), and only
+> starts running when you press start / Space / Enter. Works standalone, or folds into `dsh-plugin-arcade`.
 
 ---
+
+## 开始界面
+
+打开面板先进入标题页，不会直接开跑：
+
+- 左侧：游戏标题、说明、**开始逃亡**、音效开关、全屏、操作键位；
+- 右侧：历史最高分、当前区域、三个区域预告；
+- 标题页不显示游戏 HUD、角色和障碍，只留机房地景，避免误以为游戏已经开始；
+- 点「开始逃亡」、按空格或回车才正式进入游戏；暂停和结算也是独立的深色 UI。
 
 ## 长什么样
 
