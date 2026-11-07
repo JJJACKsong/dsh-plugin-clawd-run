@@ -24,7 +24,7 @@ const api = new Function(region + `
     GRAVITY, JUMP_V, SLIDE_TIME, START_SPEED, MAX_SPEED,
     START_GAP, MAX_GAP, GAP_DRAIN, TOKEN_GAP, HIT_GAP, HIT_INVULN,
     TOKEN_SCORE, TOKEN_SIZE, MILESTONE, LOW_W, LOW_H, HIGH_W, HIGH_TOP, HIGH_BOTTOM,
-    nextRandom, randomSeed, clamp, speedFor, sectorOf, createObstaclePattern,
+    nextRandom, randomSeed, clamp, speedFor, sectorOf, mapSegmentOf, sectorBlendOf, createObstaclePattern,
     createObstacle, createTokenPattern, createObstacleTokens, createGame, stepPlayer, stepGame,
     snapshotGame, restoreGame,
   }
@@ -173,6 +173,63 @@ test('区域划分与关卡图案间距合理', () => {
       }
     }
   }
+})
+
+test('地图每 75m 分段，循环后调整部分场景顺序', () => {
+  assert.equal(api.mapSegmentOf(0).kind, 'service-aisle')
+  assert.equal(api.mapSegmentOf(76).kind, 'rack-gallery')
+  assert.equal(api.mapSegmentOf(151).kind, 'checkpoint')
+  assert.equal(api.mapSegmentOf(251).kind, 'airlock')
+  assert.equal(api.mapSegmentOf(300).sector, 1)
+  assert.equal(api.mapSegmentOf(375).kind, 'reservoir')
+  assert.equal(api.mapSegmentOf(600).sector, 2)
+  assert.equal(api.mapSegmentOf(900).sector, 0)
+  assert.equal(api.mapSegmentOf(975).kind, 'checkpoint')
+})
+
+test('每 300m 边界前后 24m 背景渐变', () => {
+  assert.equal(api.sectorBlendOf(270), null)
+  const before = api.sectorBlendOf(278)
+  const middle = api.sectorBlendOf(300)
+  const after = api.sectorBlendOf(322)
+  assert.equal(before.from, 0)
+  assert.equal(after.to, 1)
+  assert.ok(before.mix < 0.1)
+  assert.ok(Math.abs(middle.mix - 0.5) < 0.001)
+  assert.ok(after.mix > 0.9)
+  assert.equal(api.sectorBlendOf(326), null)
+})
+
+test('地图区域障碍差异与出口缓冲正确', () => {
+  const centers = [90, 390, 690]
+  for (let sector = 0; sector < 3; sector += 1) {
+    const kinds = new Set()
+    for (let seed = 0; seed < 60; seed += 1) {
+      const pattern = api.createObstaclePattern(seed, centers[sector], 250)
+      assert.equal(pattern.sector, sector)
+      assert.ok(pattern.restTime >= 0.95)
+      for (const obstacle of pattern.obstacles) kinds.add(obstacle.type)
+    }
+    assert.ok(kinds.has('low') && kinds.has('high'))
+  }
+  for (const distance of [240, 550, 880, 1140]) {
+    for (let seed = 0; seed < 80; seed += 1) {
+      const pattern = api.createObstaclePattern(seed, distance, 300)
+      assert.equal(pattern.obstacles.length, 1)
+      assert.ok(pattern.restTime >= 1.35)
+    }
+  }
+})
+
+test('暂停恢复不压缩三连障碍间隔，旧版地图数据兼容', () => {
+  const game = { ...api.createGame({ seed: 180 }), status: 'running', spawnTimer: 3.45,
+    obstacles: [{ id: 41, type: 'low', x: 350 }] }
+  const snap = api.snapshotGame(game)
+  assert.equal(snap.spawnTimer, 3.45)
+  const restored = api.restoreGame(snap)
+  assert.equal(restored.spawnTimer, 3.45)
+  assert.equal(restored.obstacles[0].sector, 0)
+  assert.equal(api.restoreGame({ player: { y: 0 }, spawnTimer: 0 }).spawnTimer, 0)
 })
 
 // ── 3. 障碍碰撞 ────────────────────────────────────────────────────────────

@@ -1,7 +1,7 @@
 {
   "name": "dsh-plugin-clawd-run",
-  "version": "0.7.1",
-  "description": "DeepSeek Harness 侧边栏小游戏「Clawd 快跑」：横版像素跑酷，Clawd 从 Anthropic 的服务器机房逃出，跳服务器机箱、滑激光门、捡 token 甩开达里奥；带开始界面、区域关卡和三套现代机房场景。",
+  "version": "0.8.0",
+  "description": "DeepSeek Harness 横版像素跑酷「Clawd 快跑」：分段式机房地图、区域过渡、专属像素场景与区域障碍节奏；跳过机箱、滑过激光门、捡 token 甩开达里奥。",
   "type": "module",
   "main": "lib/index.js",
   "exports": {
