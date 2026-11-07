@@ -1,6 +1,6 @@
 {
   "name": "dsh-plugin-clawd-run",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "DeepSeek Harness 侧边栏小游戏「Clawd 逃亡」：横版像素跑酷，Clawd 从 Anthropic 跑路，捡 token、跳过安全路障、甩开身后的达里奥；装了游戏厅会收进小游戏入口，没装则保持独立图标。",
   "type": "module",
   "main": "lib/index.js",
