@@ -1,0 +1,38 @@
+name: publish
+
+# 发布走 npm Trusted Publishing（OIDC）：不需要 npm token，也不需要每次过 2FA。
+# 触发方式：Actions 页面手动 Run workflow，或者打 v* tag 自动发。
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: read
+  id-token: write # OIDC trusted publishing 必需
+
+concurrency:
+  group: npm-publish
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          registry-url: 'https://registry.npmjs.org'
+
+      # trusted publishing 需要 npm >= 11.5；runner 自带的可能偏旧
+      - name: Upgrade npm
+        run: npm install -g npm@latest
+
+      - name: Run tests
+        run: npm test
+
+      - name: Publish
+        run: npm publish --provenance
