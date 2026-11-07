@@ -25,7 +25,7 @@ const api = new Function(region + `
     START_GAP, MAX_GAP, GAP_DRAIN, TOKEN_GAP, HIT_GAP, HIT_INVULN,
     TOKEN_SCORE, TOKEN_SIZE, MILESTONE, LOW_W, LOW_H, HIGH_W, HIGH_TOP, HIGH_BOTTOM,
     nextRandom, randomSeed, clamp, speedFor,
-    createObstacle, createTokenPattern, createGame, stepPlayer, stepGame,
+    createObstacle, createTokenPattern, createObstacleTokens, createGame, stepPlayer, stepGame,
     snapshotGame, restoreGame,
   }
 `)()
@@ -64,8 +64,8 @@ test('速度随距离增长且封顶', () => {
   assert.equal(api.speedFor(0), api.START_SPEED)
   assert.ok(api.speedFor(500) > api.speedFor(0))
   assert.equal(api.speedFor(99999), api.MAX_SPEED)
-  assert.equal(api.VIEW_W, 480)
-  assert.equal(api.VIEW_H, 270)
+  assert.equal(api.VIEW_W, 400)
+  assert.equal(api.VIEW_H, 225)
 })
 
 test('开一局：ready、有初始 token、达里奥距离到位', () => {
@@ -131,6 +131,27 @@ test('空中按下滑铲会快速下落，不会卡住', () => {
   game.player = { ...game.player, y: -60, vy: -100 }
   const result = api.stepGame(game, 1 / 60, { slide: true })
   assert.ok(result.game.player.vy > 0, '应该被改成向下')
+})
+
+test('token 队形有高低变化，障碍会配套 token', () => {
+  const lowFormation = api.createObstacleTokens(123, 1, { id: 1, type: 'low', x: 300 })
+  assert.equal(lowFormation.tokens.length, 5)
+  const lowY = new Set(lowFormation.tokens.map((token) => token.y))
+  assert.ok(lowY.size >= 3, '低障碍上方应该有高低变化的弧线')
+  assert.ok(lowFormation.tokens.every((token) => token.y < api.GROUND_Y - api.LOW_H))
+
+  const highFormation = api.createObstacleTokens(456, 10, { id: 2, type: 'high', x: 300 })
+  assert.equal(highFormation.tokens.length, 4)
+  assert.ok(highFormation.tokens.every((token) => token.y === api.GROUND_Y - 14))
+
+  const wave = api.createTokenPattern(999, 1, 200, 'wave')
+  assert.equal(wave.tokens.length, 7)
+  assert.ok(new Set(wave.tokens.map((token) => token.y)).size >= 4, 'wave 队形应该有高低起伏')
+  for (const kind of ['stairUp', 'stairDown', 'zigzag', 'rows', 'cluster']) {
+    const formed = api.createTokenPattern(7, 1, 200, kind)
+    assert.ok(formed.tokens.length >= 5, kind + ' 队形 token 太少')
+    assert.ok(formed.tokens.every((token) => token.y > 20 && token.y < api.GROUND_Y), kind + ' token 高度越界')
+  }
 })
 
 // ── 3. 障碍碰撞 ────────────────────────────────────────────────────────────
