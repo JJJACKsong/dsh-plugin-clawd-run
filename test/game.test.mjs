@@ -1,5 +1,5 @@
 /**
- * Clawd 逃亡规则内核单测。
+ * Clawd 快跑规则内核单测。
  *
  * 直接从 lib/client.js 抽出 `#region game-core` 段（纯函数，不依赖 React/DOM），
  * 用 new Function 装成模块跑——测的是真正上线的那段代码。
