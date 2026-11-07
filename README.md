@@ -8,11 +8,10 @@
 
 > **English**: A pixel side-scrolling runner for DeepSeek Harness. Clawd escapes Anthropic's modern
 > data center; you jump fallen server crates, slide under security laser gates, grab tokens to keep
-> Dario off your tail, and watch the chase meter. Clawd is drawn to Anthropic's minimal mascot spec — 8×6 body, two square eyes, four
-> legs, mid-height arms, white-tipped antennae, `#d97757`, no mouth. Dario uses a user-provided
-> animated GIF, embedded as a 12-frame sprite sheet. 400×225 canvas (roughly
-> 1000×563 CSS in the panel, with a fullscreen button), integer pixel scaling, no external art or
-> fonts. Works standalone, or folds into `dsh-plugin-arcade`.
+> Dario off your tail, and watch the chase meter. Clawd uses user-provided running / sliding GIF
+> animations (12 frames each), and Dario a user-provided running GIF — both embedded as sprite
+> sheets. 400×225 canvas (roughly 1000×563 CSS in the panel, with a fullscreen button), integer
+> pixel scaling. Works standalone, or folds into `dsh-plugin-arcade`.
 
 ---
 
@@ -22,13 +21,9 @@
 |---|---|
 | ![开始](docs/preview-ready.png) | ![在跑](docs/preview-play.png) |
 
-| 跳跃 | 滑铲 |
+| 滑铲 | 被达里奥抓住了 |
 |---|---|
-| ![跳跃](docs/preview-jump.png) | ![滑铲](docs/preview-slide.png) |
-
-| 被达里奥抓住了 |
-|---|
-| ![结算](docs/preview-over.png) |
+| ![滑铲](docs/preview-slide.png) | ![结算](docs/preview-over.png) |
 
 ## 玩法
 
@@ -44,16 +39,20 @@
 - **暂停/离开**：P 或按钮暂停；切面板 / 切标签页自动暂停并落盘，回来接着跑。
 - **画面**：默认占满面板宽度（约 1000×563 CSS）；底部「全屏」可以把整个游戏页拉满浏览器窗口。
 
-## 角色还原
+## 角色动画
 
-Clawd 按 Anthropic 官方 mascot 的极简规格重画，不是随便一只橙色生物：
+- **Clawd**：用户提供的 `Clawd-running.gif`（12 帧、80ms/帧）和 `Clawd-sliding.gif`（12 帧、90ms/帧）。
+  - 运行中播放 running 精灵表；滑铲播放 sliding 精灵表；
+  - 跳跃继续用 running 帧，靠整体位置表现起跳；
+  - 两份 GIF 都拆成横向精灵表（46×36 / 38×20）base64 内嵌，运行时不再依赖外部文件；
+  - 无敌帧不再让 Clawd 整只消失，改为白色四角闪框。
+- **达里奥**：用户提供的 `Running-Dario.gif`（12 帧、80ms/帧），拆成 51×56 精灵表内嵌。
+- 两份角色资产都是本地提供的参考素材；**公开发布前要确认授权**。
 
-- **8×6 方身体**，官方橙 `#d97757`；
-- **两只方形眼睛**，没有嘴巴；
-- **四条小短腿**（跑动时交替抬起，跳跃时收起）；
-- **中段两侧的短手臂**；
-- **两根带白色尖端的触角**；
-- 全部由代码逐像素绘制，无外部图片 / 字体 / 音频。
+## HUD
+
+- HUD 卡片固定为深色底 + 亮色字（不依赖浅色/深色主题变量），分数、最高分、TOKEN、距离在任何主题下都清楚。
+- SECTOR 标签、追逐条、按钮同样做了对比度处理。
 
 ## 区域与关卡
 
@@ -72,8 +71,8 @@ Clawd 按 Anthropic 官方 mascot 的极简规格重画，不是随便一只橙�
 ## 场景与 token 队形
 
 - 现代数据中心：顶部灯带与线缆、成排服务器机架与闪烁 LED、玻璃隔断、EXIT 出口牌、地面导光带与逃生箭头、冷却管道/风扇、核心区发光机组、数据粒子、高速速度线。
-- 0.3.1 再提亮了墙面/机架/地面和障碍警示色；开着的机架灯点、激光门红束、服务器机箱黄黑警示条在高对比度下更容易看清。
-- Clawd 的四条腿固定接在身体底边，跑动只摆动腿的下半截，不再出现脚和身子断开的观感。
+- 场景继续提亮墙面/机架/地面和障碍警示色；机架灯点、激光门红束、服务器机箱黄黑警示条更容易看清。
+- HUD 改为固定深色卡片 + 亮字，不再出现「白底淡字」。
 - token 不再只有直线：`wave` 波浪、上/下阶梯、`zigzag`、双排、菱形簇；并且和障碍配套：
   - 低障碍上方摆 **弧线**，引导玩家跳起来吃；
   - 高横幅下方摆 **低线**，引导玩家滑铲穿过。
