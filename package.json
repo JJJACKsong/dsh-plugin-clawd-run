@@ -1,0 +1,54 @@
+{
+  "name": "dsh-plugin-clawd-run",
+  "version": "0.1.0",
+  "description": "DeepSeek Harness 侧边栏小游戏「Clawd 逃亡」：横版像素跑酷，Clawd 从 Anthropic 跑路，捡 token、跳过安全路障、甩开身后的达里奥；装了游戏厅会收进小游戏入口，没装则保持独立图标。",
+  "type": "module",
+  "main": "lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./client": "./lib/client.js",
+    "./package.json": "./package.json",
+    "./locale/*.json": "./locale/*.json",
+    "./icon": "./icon.svg"
+  },
+  "files": [
+    "lib",
+    "cordis.patch.yml",
+    "locale",
+    "icon.svg",
+    "docs",
+    "README.md"
+  ],
+  "scripts": {
+    "test": "node test/game.test.mjs && node test/plugin.test.mjs"
+  },
+  "keywords": [
+    "dsh",
+    "deepseek-harness",
+    "dsh-plugin",
+    "cordis",
+    "game",
+    "runner",
+    "temple-run",
+    "clawd",
+    "pixel",
+    "sidebar"
+  ],
+  "license": "MIT",
+  "author": "JJJACKsong",
+  "engines": {
+    "dsh": ">=0.1.5-rc.2"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "immediately": true,
+      "inject": [
+        "@deepseek-ai/dsh-client-locale"
+      ]
+    }
+  }
+}

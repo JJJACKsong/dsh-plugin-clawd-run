@@ -1,0 +1,9 @@
+# dsh-plugin-clawd-run 的 bundle patch。
+#
+# 本包只有浏览器半（lib/client.js）：侧边栏图标 / 主区整页，或向游戏厅登记。
+# Host 半 lib/index.js 是空壳 apply()，不发布 Cordis service、不注册工具、不写任何文件。
+#
+# ⚠️ 行 id 必须唯一：`dsh-clawd-run` 未与任何已装 bundle 冲突。
+- insert:
+    - id: dsh-clawd-run
+      name: 'dsh-plugin-clawd-run'
