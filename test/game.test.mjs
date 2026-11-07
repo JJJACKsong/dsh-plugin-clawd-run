@@ -24,7 +24,7 @@ const api = new Function(region + `
     GRAVITY, JUMP_V, SLIDE_TIME, START_SPEED, MAX_SPEED,
     START_GAP, MAX_GAP, GAP_DRAIN, TOKEN_GAP, HIT_GAP, HIT_INVULN,
     TOKEN_SCORE, TOKEN_SIZE, MILESTONE, LOW_W, LOW_H, HIGH_W, HIGH_TOP, HIGH_BOTTOM,
-    nextRandom, randomSeed, clamp, speedFor,
+    nextRandom, randomSeed, clamp, speedFor, sectorOf, createObstaclePattern,
     createObstacle, createTokenPattern, createObstacleTokens, createGame, stepPlayer, stepGame,
     snapshotGame, restoreGame,
   }
@@ -151,6 +151,27 @@ test('token 队形有高低变化，障碍会配套 token', () => {
     const formed = api.createTokenPattern(7, 1, 200, kind)
     assert.ok(formed.tokens.length >= 5, kind + ' 队形 token 太少')
     assert.ok(formed.tokens.every((token) => token.y > 20 && token.y < api.GROUND_Y), kind + ' token 高度越界')
+  }
+})
+
+test('区域划分与关卡图案间距合理', () => {
+  assert.equal(api.sectorOf(0), 1)
+  assert.equal(api.sectorOf(299), 1)
+  assert.equal(api.sectorOf(300), 2)
+  assert.equal(api.sectorOf(900), 4)
+  for (const [distance, speed] of [[0, 170], [200, 200], [500, 240], [1000, 320]]) {
+    for (let seed = 1; seed <= 20; seed += 1) {
+      const pattern = api.createObstaclePattern(seed, distance, speed)
+      assert.ok(pattern.obstacles.length >= 1 && pattern.obstacles.length <= 3)
+      for (const obstacle of pattern.obstacles) {
+        assert.ok(obstacle.type === 'low' || obstacle.type === 'high')
+        assert.ok(Number.isFinite(obstacle.x) && obstacle.x > api.VIEW_W)
+      }
+      for (let i = 1; i < pattern.obstacles.length; i += 1) {
+        const gap = pattern.obstacles[i].x - pattern.obstacles[i - 1].x
+        assert.ok(gap >= speed * 0.8, '障碍之间至少留 0.8 秒动作时间：' + gap)
+      }
+    }
   }
 })
 
