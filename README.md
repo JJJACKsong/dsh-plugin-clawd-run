@@ -5,6 +5,7 @@
 [![license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![dsh](https://img.shields.io/badge/dsh-%3E%3D0.1.5--rc.2-4f8ef7.svg)](#兼容性)
 [![platform](https://img.shields.io/badge/platform-web%20ui-4f9fb0.svg)](#兼容性)
+[![npm](https://img.shields.io/npm/v/dsh-plugin-clawd-run.svg)](https://www.npmjs.com/package/dsh-plugin-clawd-run)
 
 > **English**: A pixel side-scrolling runner for DeepSeek Harness. Clawd escapes Anthropic's modern
 > data center; you jump fallen server crates, slide under security laser gates, grab tokens to keep
@@ -106,16 +107,22 @@
 
 ## 安装
 
-> npm 包首次发布还差一次 npm 账号授权；当前先按 GitHub / 本地目录安装，授权完成后补 npm 安装方式。
+**从 npm**：
 
-**从 GitHub / 本地目录**：
+```bash
+dsh plugin --profile <profile> add dsh-plugin-clawd-run
+```
+
+桌面版：插件管理器里按 npm 包名 `dsh-plugin-clawd-run` 安装。
+
+**从 GitHub / 本地目录**（离线或改代码时）：
 
 ```bash
 git clone https://github.com/JJJACKsong/dsh-plugin-clawd-run.git
 dsh plugin --profile <profile> add /abs/path/to/dsh-plugin-clawd-run
 ```
 
-桌面版：插件管理器里从本地目录安装；装完刷新页面。
+装完刷新页面；如果装了游戏厅，会出现在「小游戏」列表里，否则侧栏多一个「Clawd 快跑」图标。
 
 装完刷新页面；如果装了游戏厅，会出现在「小游戏」列表里，否则侧栏多一个「Clawd 快跑」图标。
 
