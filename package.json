@@ -1,7 +1,7 @@
 {
   "name": "dsh-plugin-clawd-run",
-  "version": "0.8.0",
-  "description": "DeepSeek Harness 横版像素跑酷「Clawd 快跑」：分段式机房地图、区域过渡、专属像素场景与区域障碍节奏；跳过机箱、滑过激光门、捡 token 甩开达里奥。",
+  "version": "0.8.1",
+  "description": "Clawd 快跑：原创 12 件像素场景道具、低高障碍分色、跳滑引导金币与糖豆心形/菱形/箭头/爪印图案。",
   "type": "module",
   "main": "lib/index.js",
   "exports": {
@@ -13,6 +13,7 @@
   },
   "files": [
     "lib",
+    "assets",
     "cordis.patch.yml",
     "locale",
     "icon.svg",
@@ -20,7 +21,7 @@
     "README.md"
   ],
   "scripts": {
-    "test": "node test/game.test.mjs && node test/plugin.test.mjs"
+    "test": "node test/game.test.mjs && node test/plugin.test.mjs && node test/art.test.mjs"
   },
   "keywords": [
     "dsh",

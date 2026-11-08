@@ -25,7 +25,9 @@ const api = new Function(region + `
     START_GAP, MAX_GAP, GAP_DRAIN, TOKEN_GAP, HIT_GAP, HIT_INVULN,
     TOKEN_SCORE, TOKEN_SIZE, MILESTONE, LOW_W, LOW_H, HIGH_W, HIGH_TOP, HIGH_BOTTOM,
     nextRandom, randomSeed, clamp, speedFor, sectorOf, mapSegmentOf, sectorBlendOf, createObstaclePattern,
-    createObstacle, createTokenPattern, createObstacleTokens, createGame, stepPlayer, stepGame,
+    createObstacle, createTokenPattern, createObstacleTokens, createBonusTokens,
+    tokenClearOfObstacle, tokensClearOfObstacles, jumpGuideLead, slideGuideLead,
+    createGame, stepPlayer, stepGame,
     snapshotGame, restoreGame,
   }
 `)()
@@ -133,25 +135,123 @@ test('空中按下滑铲会快速下落，不会卡住', () => {
   assert.ok(result.game.player.vy > 0, '应该被改成向下')
 })
 
-test('token 队形有高低变化，障碍会配套 token', () => {
-  const lowFormation = api.createObstacleTokens(123, 1, { id: 1, type: 'low', x: 300 })
-  assert.equal(lowFormation.tokens.length, 5)
-  const lowY = new Set(lowFormation.tokens.map((token) => token.y))
-  assert.ok(lowY.size >= 3, '低障碍上方应该有高低变化的弧线')
-  assert.ok(lowFormation.tokens.every((token) => token.y < api.GROUND_Y - api.LOW_H))
-
-  const highFormation = api.createObstacleTokens(456, 10, { id: 2, type: 'high', x: 300 })
-  assert.equal(highFormation.tokens.length, 4)
-  assert.ok(highFormation.tokens.every((token) => token.y === api.GROUND_Y - 14))
-
-  const wave = api.createTokenPattern(999, 1, 200, 'wave')
-  assert.equal(wave.tokens.length, 7)
-  assert.ok(new Set(wave.tokens.map((token) => token.y)).size >= 4, 'wave 队形应该有高低起伏')
-  for (const kind of ['stairUp', 'stairDown', 'zigzag', 'rows', 'cluster']) {
-    const formed = api.createTokenPattern(7, 1, 200, kind)
-    assert.ok(formed.tokens.length >= 5, kind + ' 队形 token 太少')
-    assert.ok(formed.tokens.every((token) => token.y > 20 && token.y < api.GROUND_Y), kind + ' token 高度越界')
+test('Token 拱线与滑线绕开障碍、空闲段有四种图案', () => {
+  for (const speed of [170, 218, 290, 360]) {
+    for (const type of ['low', 'high']) {
+      const obstacle = { id: 1, type, x: 300 }
+      const got = api.createObstacleTokens(123, 1, obstacle, speed).tokens
+      assert.equal(got.length, type === 'low' ? 8 : 6)
+      assert.ok(got.every((t) => t.kind === 'guide'))
+      assert.ok(got.every((t) => api.tokenClearOfObstacle(t, obstacle)))
+      if (type === 'low') {
+        assert.ok(new Set(got.map((t) => t.y)).size >= 5)
+        assert.ok(got[0].y > got[3].y)
+      } else {
+        assert.ok(got.every((t) => t.y === api.GROUND_Y - 9))
+        assert.ok(got.slice(0, 3).every((t) => t.x < obstacle.x - 15))
+        assert.ok(got.slice(3).every((t) => t.x > obstacle.x + api.HIGH_W + 15))
+      }
+    }
   }
+  for (const name of ['heart', 'diamond', 'arrow', 'paw']) {
+    const tokens = api.createTokenPattern(7, 1, 180, name).tokens
+    assert.ok(tokens.length >= 8, name + ' 不完整')
+    assert.ok(tokens.every((t) => t.kind === 'bonus' && t.formation === name))
+    assert.ok(new Set(tokens.map((t) => t.y)).size >= 4)
+  }
+  assert.equal(api.createTokenPattern(999, 1, 200, 'wave').tokens.length, 7)
+})
+
+test('照路线提示跳滑，在四档速度下均能收齐引导 Token', () => {
+  for (const distance of [0, 400, 1000, 1800]) {
+    const speed = api.speedFor(distance)
+    for (const type of ['low', 'high']) {
+      const obstacle = { id: 1, type, x: 360, sector: 0 }
+      const guide = api.createObstacleTokens(18, 2, obstacle, speed)
+      let game = {
+        ...api.createGame({ seed: 1 }), status: 'running', distance, gap: api.MAX_GAP,
+        spawnTimer: 999, tokenTimer: 999, obstacles: [obstacle], tokensList: guide.tokens,
+      }
+      let triggered = false, hits = 0, picked = 0
+      for (let i = 0; i < 200; i += 1) {
+        const lead = type === 'low' ? api.jumpGuideLead(speed) : api.slideGuideLead(speed)
+        const press = !triggered && game.obstacles.length > 0 &&
+          game.obstacles[0].x - lead <= api.PLAYER_X + 3
+        if (press) triggered = true
+        const outcome = api.stepGame(game, 1 / 60, press ? { [type === 'low' ? 'jump' : 'slide']: true } : {})
+        hits += outcome.events.filter((e) => e === 'hit').length
+        picked += outcome.events.filter((e) => e === 'token').length
+        game = outcome.game
+        if (game.obstacles.length === 0) break
+      }
+      assert.ok(triggered)
+      assert.equal(hits, 0, type + ' @ ' + speed)
+      assert.equal(picked, guide.tokens.length, type + ' @ ' + speed)
+    }
+  }
+})
+
+test('安全图案只放在组间，独立自由刷币不再干扰障碍', () => {
+  const pattern = { restTime: 1.9 }
+  let count = 0
+  const names = new Set()
+  for (const type of ['low', 'high']) {
+    for (const speed of [170, 260, 360]) {
+      for (let seed = 0; seed < 70; seed += 1) {
+        const obstacle = { id: 1, type, x: 440, distance: 250 }
+        const tokens = api.createBonusTokens(seed, 20, pattern, obstacle, speed).tokens
+        count += tokens.length
+        for (const t of tokens) {
+          names.add(t.formation)
+          assert.ok(api.tokenClearOfObstacle(t, obstacle))
+          assert.ok(api.tokenClearOfObstacle(t, { type: 'high', x: obstacle.x + speed * pattern.restTime }))
+        }
+      }
+    }
+  }
+  assert.ok(count >= 100)
+  assert.ok(names.size >= 3)
+  const game = quiet(running(api.createGame({ seed: 4 })))
+  game.tokenTimer = -5
+  assert.equal(api.stepGame(game, 1 / 60, {}).game.tokensList.length, 0)
+})
+
+test('批量长跑 16 种种子：Token 无视觉重叠，图案多样，数量有界', () => {
+  const seen = new Set()
+  let highest = 0
+  for (let seed = 1; seed <= 16; seed += 1) {
+    let game = running(api.createGame({ seed }))
+    for (let i = 0; i < 1800; i += 1) {
+      game = api.stepGame({ ...game, gap: api.MAX_GAP }, 1 / 60, {}).game
+      assert.equal(game.status, 'running')
+      highest = Math.max(highest, game.tokensList.length)
+      for (const token of game.tokensList) {
+        assert.ok(game.obstacles.every((o) => api.tokenClearOfObstacle(token, o)),
+          '障碍重合 seed ' + seed + ' tick ' + i)
+        if (token.kind === 'bonus') seen.add(token.formation)
+      }
+    }
+  }
+  assert.ok(highest <= 80, '存档 Token 容量')
+  for (const name of ['heart', 'diamond', 'arrow', 'paw']) assert.ok(seen.has(name))
+})
+
+test('旧档兼容，远处三连障碍与图案 token 不发生坐标裁剪', () => {
+  const farX = api.VIEW_W + 1000
+  const game = {
+    ...api.createGame({ seed: 101 }), status: 'running', spawnTimer: 5.3,
+    obstacles: [{ id: 999, type: 'high', x: farX, sector: 2 }],
+    tokensList: [{ id: 1001, x: farX + 50, y: 125, phase: 0, kind: 'bonus', formation: 'heart' }],
+  }
+  const restored = api.restoreGame(api.snapshotGame(game))
+  assert.equal(restored.obstacles[0].x, farX)
+  assert.equal(restored.tokensList[0].x, farX + 50)
+  assert.equal(restored.tokensList[0].formation, 'heart')
+  assert.equal(restored.spawnTimer, 5.3)
+  const legacy = api.restoreGame({
+    player: { y: 0 }, tokensList: [{ id: 1, x: 300, y: 142, phase: 0 }],
+  })
+  assert.ok(legacy && legacy.tokensList.length === 1)
 })
 
 test('区域划分与关卡图案间距合理', () => {

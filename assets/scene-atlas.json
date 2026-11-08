@@ -1,0 +1,134 @@
+{
+  "version": "0.8.1",
+  "author": "Original Clawd Run pixel props",
+  "tileSize": 48,
+  "width": 192,
+  "height": 144,
+  "palette": {
+    "k": "#101c29",
+    "m": "#2d4659",
+    "s": "#4c6a7b",
+    "h": "#88a2ac",
+    "d": "#172f40",
+    "c": "#43959c",
+    "b": "#69b2c9",
+    "g": "#6dac87",
+    "a": "#c49f52",
+    "r": "#b8665c",
+    "v": "#76749a",
+    "w": "#bddce0",
+    "u": "#284d61",
+    "y": "#ded1a2"
+  },
+  "tiles": [
+    {
+      "index": 0,
+      "name": "server-terminal",
+      "sector": "server",
+      "x": 0,
+      "y": 0,
+      "width": 48,
+      "height": 48
+    },
+    {
+      "index": 1,
+      "name": "network-rack",
+      "sector": "server",
+      "x": 48,
+      "y": 0,
+      "width": 48,
+      "height": 48
+    },
+    {
+      "index": 2,
+      "name": "network-switch",
+      "sector": "server",
+      "x": 96,
+      "y": 0,
+      "width": 48,
+      "height": 48
+    },
+    {
+      "index": 3,
+      "name": "maintenance-cart",
+      "sector": "server",
+      "x": 144,
+      "y": 0,
+      "width": 48,
+      "height": 48
+    },
+    {
+      "index": 4,
+      "name": "cooling-valve",
+      "sector": "cooling",
+      "x": 0,
+      "y": 48,
+      "width": 48,
+      "height": 48
+    },
+    {
+      "index": 5,
+      "name": "coolant-pump",
+      "sector": "cooling",
+      "x": 48,
+      "y": 48,
+      "width": 48,
+      "height": 48
+    },
+    {
+      "index": 6,
+      "name": "ventilation-fan",
+      "sector": "cooling",
+      "x": 96,
+      "y": 48,
+      "width": 48,
+      "height": 48
+    },
+    {
+      "index": 7,
+      "name": "pressure-gauge",
+      "sector": "cooling",
+      "x": 144,
+      "y": 48,
+      "width": 48,
+      "height": 48
+    },
+    {
+      "index": 8,
+      "name": "core-coil",
+      "sector": "core",
+      "x": 0,
+      "y": 96,
+      "width": 48,
+      "height": 48
+    },
+    {
+      "index": 9,
+      "name": "power-pillar",
+      "sector": "core",
+      "x": 48,
+      "y": 96,
+      "width": 48,
+      "height": 48
+    },
+    {
+      "index": 10,
+      "name": "breaker-switch",
+      "sector": "core",
+      "x": 96,
+      "y": 96,
+      "width": 48,
+      "height": 48
+    },
+    {
+      "index": 11,
+      "name": "emergency-panel",
+      "sector": "core",
+      "x": 144,
+      "y": 96,
+      "width": 48,
+      "height": 48
+    }
+  ],
+  "notes": "All sprites are background-only. They are also inlined as a data SVG in lib/client.js to work in bundled DSH Web UI."
+}
