@@ -6,6 +6,7 @@
 [![dsh](https://img.shields.io/badge/dsh-%3E%3D0.1.5--rc.2-4f8ef7.svg)](#兼容性)
 [![platform](https://img.shields.io/badge/platform-web%20ui-4f9fb0.svg)](#兼容性)
 [![npm](https://img.shields.io/npm/v/dsh-plugin-clawd-run.svg)](https://www.npmjs.com/package/dsh-plugin-clawd-run)
+[![开放插件市场](https://img.shields.io/endpoint?url=https%3A%2F%2Fdshopen.org%2Fbadge%2Fdsh-plugin-clawd-run.json)](https://dshopen.org/zh/plugins/dsh-plugin-clawd-run/)
 
 > **English**: A pixel side-scrolling runner for DeepSeek Harness. Clawd escapes Anthropic's modern
 > data center; you jump fallen server crates, slide under security laser gates, grab tokens to keep
