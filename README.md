@@ -29,15 +29,17 @@
 
 ## 长什么样
 
-> 下列截图来自 v0.7.1。v0.8.1 的新版场景需在 DSH 中重装并刷新插件查看；以下静态截图尚未重录。
-
 | 开始 | 在跑 |
 |---|---|
 | ![开始](docs/preview-ready.png) | ![在跑](docs/preview-play.png) |
 
-| 滑铲 | 被达里奥抓住了 |
+| 滑铲 | 暂停 |
 |---|---|
-| ![滑铲](docs/preview-slide.png) | ![结算](docs/preview-over.png) |
+| ![滑铲](docs/preview-slide.png) | ![暂停](docs/preview-pause.png) |
+
+| 被达里奥抓住了 |
+|---|
+| ![结算](docs/preview-over.png) |
 
 ## 玩法
 
